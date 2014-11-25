@@ -35,6 +35,12 @@ typedef struct {
 } AxisData;
 static AxisData axis_datas; 
 
+//Writing data to loggign session
+static void count_axis(AxisData *axis_data, char v[]) {  
+  strcpy(axis_data->value, v);  
+  data_logging_log(axis_data->logging_session, &axis_data->value,1);
+}
+
 //collect data from accelerometer
 int i=1;
 static void data_handler(AccelData *data, uint32_t num_samples) {
@@ -56,14 +62,13 @@ static void data_handler(AccelData *data, uint32_t num_samples) {
     AxisData *axis_data0 = &axis_datas; 
     strcpy(axis_data0->value, data_buffer);  
     //Writing data to logging session
-    data_logging_log(axis_data0->logging_session, &axis_data0->value,1);   
-      
+    //data_logging_log(axis_data0->logging_session, &axis_data0->value,1);   
+    count_axis(axis_data0,data_buffer); //Writing data to logging session    
     if (i==300){
       //Finish a logging session and creat a new one
       AxisData *axis_data = &axis_datas;
       data_logging_finish(axis_data->logging_session); //Finish the old session
       axis_data->logging_session = data_logging_create(AXIS_LOG_TAG, DATA_LOGGING_BYTE_ARRAY, BFSIZE, false); //Create a new session every one minute
-         
       i=1;
     }else{
       i++;
